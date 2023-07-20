@@ -1,0 +1,68 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #0b111a;
+  }
+  
+  .container {
+    text-align: center;
+    margin-top: 100px;
+  }
+  
+  h1 {
+    color: #fdfbf2; 
+    font-size: 36px;
+  }
+  
+  .subtitle {
+    color: #f0ebd8be; 
+    font-size: 18px;
+    margin-top: 20px;
+  }
+
+  hr {
+    margin: 20px 0;
+    border: none;
+    height: 1px;
+    background-color: #fdfbf2;
+  }
+
+  .about-me {
+    margin-top: 30px;
+    text-align: center;
+  }
+  
+  .about-me h2 {
+    color: #fdfbf2;
+    font-size: 24px;
+  }
+  
+  .about-me p {
+    color: #f0ebd8be;
+    font-size: 16px;
+  }
+  
+  .the-big-mess {
+    margin-top: 30px;
+    text-align: center;
+  }
+  
+  .the-big-mess h2 {
+    color: #fdfbf2;
+    font-size: 24px;
+  }
+  
+  .the-big-mess a {
+    color: #f0ebd8be;
+    font-size: 16px;
+    text-decoration: none;
+  }
+  
+  .the-big-mess a:hover {
+    text-decoration: underline;
+  }
+
+  .nothing {
+    color: #0b111a;
+  }
