@@ -32,6 +32,12 @@ const { createFFmpeg, fetchFile } = FFmpeg;
             ffmpeg.FS('writeFile', 'watermark.png', await fetchFile(watermarkFile));
             m1 = '-i';
             m2 = 'watermark.png';
+            c1 = '-c:v';
+            c2 = 'libx264';
+            c3 = '-preset';
+            c4 = 'ultrafast';
+            vc1 = '-filter_complex';
+            w1 = 'overlay=10:10';
           }
           if (document.getElementById('subsCheck').checked && !subtitleFile) {
             subtitleFile = convert();
