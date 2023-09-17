@@ -1,0 +1,75 @@
+  <html>
+    <head>
+      <script src="/cuttingboard/ffmpeg.min.js"></script>
+      <link rel="stylesheet" href="video.css">
+    </head>
+    <body>
+      <div class="light-mode">
+        <input type="checkbox" id="darkModeToggle">
+        <label for="darkModeToggle" class="switch">Dark Mode</label>
+      </div>
+      <h3>Upload a video to edit!</h3>
+      <script src="/cuttingboard/mode.js"></script>
+      <video id="output-video" controls></video><br/>
+      <a id = down href="" download="">
+        <button>Download</button>
+      </a>
+      <form id="vidup">
+        <label for="start">Start Time (hr:min:sec):</label><br>
+        <input type="text" id="start" name="start"><br>
+        <label for="time">End Time (hr:min:sec):</label><br>
+        <input type="text" id="time" name="time"><br>
+        <input type="checkbox" id="crop" name="crop">
+        <label for="crop">Crop to 9x16 (Re-encodes)</label><br>
+        <label for="cropsize">Crop Resolution:</label>
+        <select name="cropsize" id="cropsize">
+          <option value="crop=607:1080">607x1080</option>
+          <option value="crop=405:720">405x720</option>
+          <option value="crop=270:480">270x480</option>
+          <option value="crop=202:360">202x360</option>
+          <option value="crop=135:240">135x240</option>
+          <option value="crop=81:144">81x144</option>
+        </select>
+        <label for="cropsize">(make sure it is within the original video resolution)</label><br>
+        <input type="checkbox" id="rec" name="rec">
+        <label for="rec">Re-encode (slower but more accurate timing)</label><br>
+        <input type="checkbox" id="subsCheck" name="subsCheck">
+        <label for="mark">Add Watermark (Re-encodes)</label><br>
+        <input type="checkbox" id="mark" name="mark">
+        <label for="subsCheck">Add Subtitles (Re-encodes)</label><br>
+        <label for="font">Subtitle Font:</label>
+        <select name="font" id="font">
+          <option value="arial">Arial</option>
+          <option value="helvetica">Helvetica</option>
+          <option value="futura">Futura</option>
+        </select><br>
+        <label for="sublocation">Subtitle location:</label>
+        <select name="sublocation" id="sublocation">
+          <option value="6">Top</option>
+          <option value="10">Center</option>
+          <option value="2">Bottom</option>
+        </select><br>
+        <label for="manualSubs">Manual Subtitles (ignored if subtitle file is given):</label><br>
+        <textarea id="manualSubs" name="manualSubs" rows="10" cols="70">
+0:00
+Example Subtitles, Please follow this format
+0:05
+
+0:10
+Blank spaces can be used
+</textarea><br>
+        <label for="subs">Subtitle File (SRT):</label>
+        <input type="file" id="subs"><br>
+        <label for="uploader">Video File*:</label>
+        <input type="file" id="uploader"><br>
+        <label for="uploader">Watermark (PNG):</label>
+        <input type="file" id="marker"><br>
+        </form>
+      <button onClick="run()">Start</button>
+      <button onClick="cancel()">Cancel</button>
+      <p id="message"></p>
+      <p>*The size limit of the video file depends on the amount of ram available in your system.</p>
+      <script src="/cuttingboard/subtitles.js"></script>
+      <script src="/cuttingboard/video.js"></script>
+    </body>
+  </html>
