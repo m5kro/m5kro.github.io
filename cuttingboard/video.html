@@ -34,9 +34,9 @@
         <label for="cropsize">(make sure it is within the original video resolution)</label><br>
         <input type="checkbox" id="rec" name="rec">
         <label for="rec">Re-encode (slower but more accurate timing)</label><br>
-        <input type="checkbox" id="subsCheck" name="subsCheck">
-        <label for="mark">Add Watermark (Re-encodes)</label><br>
         <input type="checkbox" id="mark" name="mark">
+        <label for="mark">Add Watermark (Re-encodes)</label><br>
+        <input type="checkbox" id="subsCheck" name="subsCheck">
         <label for="subsCheck">Add Subtitles (Re-encodes)</label><br>
         <label for="font">Subtitle Font:</label>
         <select name="font" id="font">
@@ -69,6 +69,7 @@ Blank spaces can be used
       <button onClick="run()">Start</button>
       <button onClick="cancel()">Cancel</button>
       <p id="message"></p>
+      <div id="console-output" style="height: 5em; overflow: hidden;"></div>
       <p>*The size limit of the video file depends on the amount of ram available in your system.</p>
       <script src="/cuttingboard/subtitles.js"></script>
       <script src="/cuttingboard/video.js"></script>

@@ -19,7 +19,7 @@ const { createFFmpeg, fetchFile } = FFmpeg;
           var m1 = '';
           var m2 = '';
           if (ffmpeg === null) {
-            ffmpeg = createFFmpeg({ log: false});
+            ffmpeg = createFFmpeg({ log: true});
           }
           const message = document.getElementById('message');
           message.innerHTML = 'Reading Files';
@@ -81,14 +81,14 @@ const { createFFmpeg, fetchFile } = FFmpeg;
             }
           }
           if(document.getElementById('subsCheck').checked){
-            message.innerHTML = 'Cutting';
+            message.innerHTML = 'Cutting <span class="spinner"></span>';
             await ffmpeg.run('-ss', start, '-to', time, '-i', name, m1, m2, vc1, vc2+w1, c1, c2, '-preset', 'ultrafast', 'outputone.mp4');
             ffmpeg.FS('unlink', name);
             await ffmpeg.run('-i', subname, '-ss', start, '-to', time, 'outputsubs.srt');
-            await ffmpeg.setProgress((p) => message.innerHTML = `Adding Subtitles: ${(p.ratio * 100.0).toFixed(2)}%`);
+            message.innerHTML = 'Adding Subtitles <span class="spinner"></span>';
             await ffmpeg.run('-i', 'outputone.mp4', '-filter_complex', vc3, c1, c2,'-preset', 'ultrafast', 'output-' + name);
           } else {
-            message.innerHTML = 'Cutting';
+            message.innerHTML = 'Cutting <span class="spinner"></span>';
             await ffmpeg.run('-ss', start, '-to', time, '-i', name, m1, m2, vc1, vc2+w1, c1, c2, c3, c4, '-avoid_negative_ts', 'make_zero', 'output-' + name);
         }
           message.innerHTML = 'Completed';
