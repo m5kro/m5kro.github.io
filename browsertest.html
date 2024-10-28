@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browser Information</title>
+  <script src="font-detective.js"></script>
+  <style>
+    /* General page styling */
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f4f4f9;
+    }
+    
+    h1 {
+      margin-top: 60px;
+      color: #444;
+    }
+
+    /* Mouse tracker styling */
+    #mouse-tracker {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: #282c34;
+      color: #61dafb;
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 5px;
+      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      font-weight: bold;
+    }
+
+    /* Information sections styling */
+    #info-section, #ip-section, #geo-section, #font-section, #credits-section {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin: 15px;
+      width: 80%;
+      max-width: 600px;
+    }
+
+    #info-section {
+      margin-top: 30px;
+    }
+
+    #ip-list, #font-list {
+      list-style-type: none; /* Remove bullet points */
+      padding: 0;
+      margin: 0;
+    }
+
+    #vpn-message {
+      color: #d9534f;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    /* Section headers */
+    #font-section h3, #geo-section h3, #credits-section h3 {
+      color: #444;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+
+    .ip-location-section {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="mouse-tracker">Mouse Position: X: 0, Y: 0</div>
+  <h1>Your Browser Information</h1>
+  
+  <!-- System Information -->
+  <div id="info-section"></div>
+  
+  <!-- IP List Section -->
+  <div id="ip-section">
+    <h3>Your IPs:</h3>
+    <ul id="ip-list"></ul>
+  </div>
+  
+  <!-- IP Geolocation Data Section -->
+  <div id="geo-section">
+    <h3>Geolocation Information:</h3>
+    <!-- IP geolocation data will be appended here -->
+  </div>
+
+  <!-- Font Section -->
+  <div id="font-section">
+    <h3>Installed Fonts:</h3>
+    <ul id="font-list"></ul>
+  </div>
+
+  <!-- Credits Section -->
+  <div id="credits-section">
+    <h3>Credits:</h3>
+    <p>Thanks to VoidSec for WebRTC leak code</p>
+    <p>Thanks to ip-api.com for IP geolocation</p>
+    <p>Thanks to 1j01 for system font detection</p>
+  </div>
+
+  <script>
+    // Mouse Tracker
+    document.addEventListener('mousemove', (event) => {
+      const mouseTracker = document.getElementById('mouse-tracker');
+      mouseTracker.textContent = `Mouse Position: X: ${event.clientX}, Y: ${event.clientY}`;
+    });
+
+    // Function to retrieve IP addresses
+    function findIP(onNewIP) {
+      var myPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+      var pc = new myPeerConnection({iceServers: [{urls: "stun:stun.l.google.com:19302"}]}),
+          noop = function() {},
+          localIPs = {},
+          ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g;
+
+      function ipIterate(ip) {
+        if (ip === '0.0.0.0' || localIPs[ip]) return; // Ignore 0.0.0.0 and duplicates
+        onNewIP(ip);
+        localIPs[ip] = true;
+      }
+      
+      pc.createDataChannel("");
+      pc.createOffer().then(function(sdp) {
+        sdp.sdp.split('\n').forEach(function(line) {
+          if (line.indexOf('candidate') < 0) return;
+          line.match(ipRegex).forEach(ipIterate);
+        });
+        pc.setLocalDescription(sdp, noop, noop);
+      }).catch(noop);
+      
+      pc.onicecandidate = function(ice) {
+        if (!ice || !ice.candidate || !ice.candidate.candidate || !ice.candidate.candidate.match(ipRegex)) return;
+        ice.candidate.candidate.match(ipRegex).forEach(ipIterate);
+      };
+    }
+
+    // Function to display IPs and fetch geolocation data
+    function displayIPData(ip) {
+      var ul = document.getElementById('ip-list');
+      var li = document.createElement('li');
+      li.textContent = `IP: ${ip}`;
+      ul.appendChild(li);
+
+      // Create a new container for each IP's geolocation information in the geo-section
+      const geoSection = document.getElementById("geo-section");
+      const locationSection = document.createElement("div");
+      locationSection.className = "ip-location-section";
+      locationSection.innerHTML = `<h3>Location Information for IP: ${ip}</h3>`;
+      geoSection.appendChild(locationSection);
+
+      // Fetch geolocation data for each IP
+      fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,isp,org,as,mobile,hosting,query`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "success") {
+            locationSection.innerHTML += `
+              <strong>IP:</strong> ${data.query} <br>
+              <strong>Country:</strong> ${data.country} (${data.countryCode})<br>
+              <strong>Region:</strong> ${data.regionName} (${data.region})<br>
+              <strong>City:</strong> ${data.city}<br>
+              <strong>District:</strong> ${data.district}<br>
+              <strong>ZIP:</strong> ${data.zip}<br>
+              <strong>Latitude:</strong> ${data.lat}<br>
+              <strong>Longitude:</strong> ${data.lon}<br>
+              <strong>Timezone:</strong> ${data.timezone}<br>
+              <strong>ISP:</strong> ${data.isp}<br>
+              <strong>Organization:</strong> ${data.org}<br>
+              <strong>AS:</strong> ${data.as}<br>
+              <strong>Mobile:</strong> ${data.mobile ? "Yes" : "No"}<br>
+              <strong>Hosting:</strong> ${data.hosting ? "Yes" : "No"}<br>
+            `;
+
+            // Display VPN message in the info-section if hosting is detected
+            if (data.hosting) {
+              let vpnMessage = document.getElementById("vpn-message");
+              if (!vpnMessage) {
+                vpnMessage = document.createElement("div");
+                vpnMessage.id = "vpn-message";
+                vpnMessage.innerHTML = "<strong>Likely using VPN</strong>";
+                document.getElementById("info-section").prepend(vpnMessage);
+              }
+            }
+          } else {
+            locationSection.innerHTML += "Geolocation data not available: " + data.message;
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching geolocation data:', error);
+          locationSection.innerHTML += " - Error fetching geolocation data";
+        });
+    }
+
+    // Detect OS, Browser, Cookies, Screen Size, Color Depth, WebGL Support, GPU Information, Language, Hardware Concurrency, Device Memory
+    function getOSType() {
+      const userAgent = navigator.userAgent;
+      if (userAgent.indexOf("Win") !== -1) return "Windows";
+      if (userAgent.indexOf("Mac") !== -1) return "MacOS";
+      if (userAgent.indexOf("Linux") !== -1) return "Linux";
+      if (userAgent.indexOf("Android") !== -1) return "Android";
+      if (userAgent.indexOf("like Mac") !== -1) return "iOS";
+      return "Unknown OS";
+    }
+
+    function getBrowserType() {
+      const userAgent = navigator.userAgent;
+      if (userAgent.indexOf("Firefox") !== -1) return "Firefox";
+      if (userAgent.indexOf("Opera") !== -1 || userAgent.indexOf("OPR") !== -1) return "Opera";
+      if (userAgent.indexOf("Chrome") !== -1) return "Chrome";
+      if (userAgent.indexOf("Safari") !== -1) return "Safari";
+      if (userAgent.indexOf("Trident") !== -1) return "Internet Explorer";
+      return "Unknown Browser";
+    }
+
+    function checkWebGLSupport() {
+      try {
+        const canvas = document.createElement("canvas");
+        const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        if (gl) {
+          const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+          const gpuVendor = debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : "Unknown";
+          const gpuRenderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : "Unknown";
+          return { supported: true, vendor: gpuVendor, renderer: gpuRenderer };
+        }
+      } catch (e) {
+        return { supported: false };
+      }
+      return { supported: false };
+    }
+
+    // Display system information at the top
+    const osType = getOSType();
+    const browserType = getBrowserType();
+    const cookiesEnabled = navigator.cookieEnabled ? "Yes" : "No";
+    const browserTime = new Date().toLocaleString();
+    const userAgent = navigator.userAgent;
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+    const colorDepth = window.screen.colorDepth;
+    const webGLInfo = checkWebGLSupport();
+    const language = navigator.language || "Unknown";
+    const hardwareConcurrency = navigator.hardwareConcurrency || "Unknown";
+    const deviceMemory = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : "Unknown";
+
+    var infoSection = document.getElementById('info-section');
+    infoSection.innerHTML = `
+      <strong>Operating System:</strong> ${osType} <br>
+      <strong>Browser:</strong> ${browserType} <br>
+      <strong>Language:</strong> ${language} <br>
+      <strong>Accepts Cookies:</strong> ${cookiesEnabled} <br>
+      <strong>Browser Time:</strong> ${browserTime} <br>
+      <strong>User Agent:</strong> ${userAgent} <br>
+      <strong>Screen Size:</strong> ${screenWidth} x ${screenHeight} <br>
+      <strong>Color Depth:</strong> ${colorDepth}-bit <br>
+      <strong>WebGL Support:</strong> ${webGLInfo.supported ? "Yes" : "No"} <br>
+      ${webGLInfo.supported ? `<strong>GPU Vendor:</strong> ${webGLInfo.vendor} <br><strong>GPU Renderer:</strong> ${webGLInfo.renderer} <br>` : ""}
+      <strong>Hardware Concurrency:</strong> ${hardwareConcurrency} cores <br>
+      <strong>Device Memory:</strong> ${deviceMemory} <br>
+    `;
+
+    const fontList = document.getElementById("font-list");
+
+    // Check for available fonts and display them as comma-separated values
+    FontDetective.all((fonts) => {
+      const fontNames = fonts.map(font => font.name).join(", ");
+      const li = document.createElement("li");
+      li.textContent = fontNames;
+      fontList.appendChild(li);
+    });
+
+    // Start finding IP addresses
+    findIP(displayIPData);
+  </script>
+</body>
+</html>
