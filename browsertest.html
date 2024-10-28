@@ -162,7 +162,7 @@
       geoSection.appendChild(locationSection);
 
       // Fetch geolocation data for each IP
-      fetch(`http://ip-api.com/json/${ip}?fields=status,message,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,isp,org,as,mobile,hosting,query`)
+      fetch(`https://ip-api.com/json/${ip}?fields=status,message,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,isp,org,as,mobile,hosting,query`)
         .then(response => response.json())
         .then(data => {
           if (data.status === "success") {
